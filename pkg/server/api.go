@@ -26,6 +26,7 @@ func (a *api) checkHealth(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(stdout)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode("Healthy")
 }
 

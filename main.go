@@ -9,5 +9,7 @@ import (
 
 func main() {
 	s := server.New()
-	log.Fatal(http.ListenAndServe(":80", s.Router()))
+	log.Print("Server starting...")
+	log.Fatal(http.ListenAndServe(":9192", s.Router()))
+	log.Print("Server stoped!")
 }

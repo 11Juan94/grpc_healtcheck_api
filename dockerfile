@@ -8,7 +8,6 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.1 && \
     chmod +x /bin/grpc_health_probe
 WORKDIR /build
 RUN go get -u github.com/gorilla/mux
-#RUN go mod init github.com/11Juan94/grpc_healtcheck_api
 COPY . .
 # Build the application
 RUN go build -o main .
@@ -17,6 +16,6 @@ WORKDIR /dist
 # Copy binary from build to main folder
 RUN cp /build/main .
 # Export necessary port
-EXPOSE 80
+EXPOSE 9192
 # Command to run when starting the container
 CMD ["/dist/main"]
