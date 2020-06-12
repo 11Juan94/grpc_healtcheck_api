@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/11juan94/grpc_healtcheck_api/pkg/server"
+	"github.com/11Juan94/grpc_healtcheck_api/pkg/server"
 )
 
 func main() {
