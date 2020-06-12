@@ -18,7 +18,7 @@ type Server interface {
 }
 
 func (a *api) checkHealth(w http.ResponseWriter, r *http.Request) {
-	cmd := exec.Command("/bin/grpc_health_probe", "-addr=:"+os.Getenv("GRPC_PORT"), "-connect-timeout 250ms", "-rpc-timeout 100ms")
+	cmd := exec.Command("/bin/grpc_health_probe", "-addr="+os.Getenv("GRPC_HOST")+":"+os.Getenv("GRPC_PORT"), "-connect-timeout", "250ms", "-rpc-timeout", "100ms")
 	stdout, err := cmd.Output()
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
