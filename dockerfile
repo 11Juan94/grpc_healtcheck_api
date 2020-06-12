@@ -7,11 +7,8 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.1 && \
     wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
     chmod +x /bin/grpc_health_probe
 WORKDIR /build
-COPY cmd cmd
-WORKDIR /build/cmd
 RUN go get -u github.com/gorilla/mux
-RUN go get -u github.com/11Juan94/grpc_healtcheck_api
-RUN go mod download
+#RUN go mod init github.com/11Juan94/grpc_healtcheck_api
 COPY . .
 # Build the application
 RUN go build -o main .
@@ -20,6 +17,6 @@ WORKDIR /dist
 # Copy binary from build to main folder
 RUN cp /build/main .
 # Export necessary port
-EXPOSE 3000
+EXPOSE 80
 # Command to run when starting the container
 CMD ["/dist/main"]

@@ -9,5 +9,5 @@ import (
 
 func main() {
 	s := server.New()
-	log.Fatal(http.ListenAndServe(":9192", s.Router()))
+	log.Fatal(http.ListenAndServe(":80", s.Router()))
 }
