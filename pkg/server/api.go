@@ -22,7 +22,7 @@ func (a *api) checkHealth(w http.ResponseWriter, r *http.Request) {
 	stdout, err := cmd.Output()
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		http.Error(w, string(stdout), http.StatusBadGateway)
+		http.Error(w, string(stdout), http.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode("Healthy")

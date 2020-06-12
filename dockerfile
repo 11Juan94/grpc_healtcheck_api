@@ -9,6 +9,8 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.1 && \
 WORKDIR /build
 RUN go get -u github.com/gorilla/mux
 COPY . .
+#initialize module.
+RUN go mod init github.com/11Juan94/grpc_healtcheck_api
 # Build the application
 RUN go build -o main .
 # Move to /dist directory as the place for resulting binary folder
