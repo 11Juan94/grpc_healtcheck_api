@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -21,23 +22,26 @@ type Server interface {
 
 func (a *api) checkHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	cmd := exec.Command("/bin/grpc_health_probe", "-addr="+os.Getenv("GRPC_HOST")+":"+os.Getenv("GRPC_PORT"), "-connect-timeout", "250ms", "-rpc-timeout", "100ms")
-	if err := cmd.Start(); err != nil {
-		log.Print(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel() // The cancel should be deferred so resources are cleaned up
+	// Create the command with our context
+	cmd := exec.CommandContext(ctx, "/bin/grpc_health_probe", "-addr="+os.Getenv("GRPC_HOST")+":"+os.Getenv("GRPC_PORT"), "-connect-timeout", "250ms", "-rpc-timeout", "100ms")
+	// We want to check the context error to see if the timeout was executed.
+	// The error returned by cmd.Output() will be OS specific based on what
+	// happens when a process is killed.
+	out, err := cmd.Output()
+	if ctx.Err() == context.DeadlineExceeded {
+		log.Print("Command timed out")
+		http.Error(w, "Command timed out", http.StatusInternalServerError)
 		return
 	}
-	timer := time.AfterFunc(2*time.Second, func() {
-		cmd.Process.Kill()
-	})
-	err := cmd.Wait()
-	timer.Stop()
+	// If there's no context error, we know the command completed (or errored).
 	if err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(err.Error())
+	json.NewEncoder(w).Encode(out)
 	w.WriteHeader(http.StatusOK)
 }
 
