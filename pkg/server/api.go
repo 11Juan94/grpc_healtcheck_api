@@ -41,8 +41,8 @@ func (a *api) checkHealth(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(out)
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(out)
 }
 
 func New() Server {
