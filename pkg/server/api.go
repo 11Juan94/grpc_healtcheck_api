@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -19,14 +20,24 @@ type Server interface {
 }
 
 func (a *api) checkHealth(w http.ResponseWriter, r *http.Request) {
-	cmd := exec.Command("/bin/grpc_health_probe", "-addr="+os.Getenv("GRPC_HOST")+":"+os.Getenv("GRPC_PORT"), "-connect-timeout", "250ms", "-rpc-timeout", "100ms")
-	stdout, err := cmd.Output()
 	w.Header().Set("Content-Type", "application/json")
-	if err != nil {
-		http.Error(w, string(stdout), http.StatusInternalServerError)
+	cmd := exec.Command("/bin/grpc_health_probe", "-addr="+os.Getenv("GRPC_HOST")+":"+os.Getenv("GRPC_PORT"), "-connect-timeout", "250ms", "-rpc-timeout", "100ms")
+	if err := cmd.Start(); err != nil {
+		log.Print(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode("Healthy")
+	timer := time.AfterFunc(2*time.Second, func() {
+		cmd.Process.Kill()
+	})
+	err := cmd.Wait()
+	timer.Stop()
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(err.Error())
 	w.WriteHeader(http.StatusOK)
 }
 
