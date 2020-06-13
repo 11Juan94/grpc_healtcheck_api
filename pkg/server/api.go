@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -34,8 +35,8 @@ func New() Server {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/health", a.checkHealth).Methods(http.MethodGet)
-
-	a.router = r
+	muxWithMiddlewares := http.TimeoutHandler(r, time.Second*3, "Timeout from server.")
+	a.router = muxWithMiddlewares
 	return a
 }
 
